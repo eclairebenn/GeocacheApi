@@ -2,13 +2,13 @@
 {
     public interface IGeocacheRepository
     {
-        void AddEntity(object model);
-        bool SaveAll();
+        void AddEntity<T>(T model) where T : class;
+        Task<bool> SaveAllAsync();
 
-        IEnumerable<Geocache> GetAllGeocaches();
-        Geocache GetGeocacheById(int id);
+        Task<Geocache[]> GetAllGeocachesAsync(bool includeTalks);
+        Task<Geocache> GetGeocacheAsync(string Moniker, bool includeTalks);
 
-        IEnumerable<Item> GetAllItems();
-        Item GetItemById(int id);
+        Task<Item[]> GetAllItemsAsync();
+        Task<Item> GetItemByIdAsync(int id);
     }
 }

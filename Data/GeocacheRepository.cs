@@ -13,51 +13,69 @@ namespace GeocacheAPI.Data
         }
 
         //General
-        public void AddEntity(object model)
+        public void AddEntity<T>(T model) where T : class
         {
+            _logger.LogInformation($"Adding {model.GetType} to the context.");
             _context.Add(model);
         }
 
-        public bool SaveAll()
+        public async Task<bool> SaveAllAsync()
         {
-            return _context.SaveChanges() > 0;
+
+            _logger.LogInformation($"Saving changes in context");
+            return (await _context.SaveChangesAsync()) > 0;
         }
 
 
         //Geocaches
-        public IEnumerable<Geocache> GetAllGeocaches()
+        public async Task<Geocache[]> GetAllGeocachesAsync(bool includeItems = true)
         {
-            _logger.LogInformation("GetAllGeocaches was run");
+            _logger.LogInformation("Getting all geocaches");
+            IQueryable<Geocache> query = _context.Geocaches
+                .Include(g => g.Location);
 
-                return _context.Geocaches
-                .OrderBy(g => g.Name)
-                .Include(g => g.Items)
-                .Include(g => g.Location)
-                .ToList();
+            if(includeItems)
+            {
+                query = query.Include(g => g.Items);
+            }
+
+            return await query.ToArrayAsync();
 
         }
 
-        public Geocache GetGeocacheById(int id)
+        public async Task<Geocache> GetGeocacheAsync(string moniker, bool includeItems = true)
         {
-            return _context.Geocaches
-                .Where(g => g.ID == id)
-                .Include(g => g.Items)
-                .Include(g => g.Location)
-                .First();
+
+            _logger.LogInformation($"Getting Geocache {moniker}");
+            IQueryable<Geocache> query = _context.Geocaches
+                .Include(g => g.Location);
+
+            if (includeItems)
+            {
+                query = query.Include(g => g.Items);
+            }
+
+            query = query.Where(g => g.Moniker == moniker);
+
+            return await query.FirstOrDefaultAsync();
+
         }
 
         //Items
-        public IEnumerable<Item> GetAllItems()
+        public async Task<Item[]> GetAllItemsAsync()
         {
-            return _context.Items.ToList();
+            _logger.LogInformation($"Getting all items");
+
+            var query = _context.Items;
+
+            return await query.ToArrayAsync();
         }
 
-        public Item GetItemById(int id)
+        public async Task<Item> GetItemByIdAsync(int id)
         {
-            return _context.Items
-                .Where(g => g.Id == id)
-                .Include(i => i.Geocache)
-                .First();
+            _logger.LogInformation($"Getting Item by Id");
+            var query = _context.Items.Where(i => i.Id == id);
+            return await _context.Items.FirstOrDefaultAsync();
         }
     }
 }

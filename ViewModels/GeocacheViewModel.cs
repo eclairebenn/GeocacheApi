@@ -7,6 +7,10 @@ namespace GeocacheAPI.ViewModels
         public int ID { get; set; }
 
         [Required]
+
+        public string? Moniker { get; set; }
+
+        [Required]
         [MinLength(4)]
         public string? Name { get; set; }
 
