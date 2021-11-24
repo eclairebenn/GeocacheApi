@@ -18,29 +18,7 @@ namespace GeocacheAPI.Controllers
             _repository = repository;
         }
 
-        // GET: api/Geocaches
-        //[HttpGet]
-        //public IEnumerable<Geocache> GetGeocaches()
-        //{
-        //    var results = _repository.GetAllGeocaches();
-
-        //    return results;
-        //}
-
-        //// GET: api/Geocaches/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Geocache>> GetGeocache(long id)
-        //{
-        //    var geocache = await _repository.Geocaches.FindAsync(id);
-
-        //    if (geocache == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    return geocache;
-        //}
-
+       
         //// PUT: api/Geocaches/5
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]

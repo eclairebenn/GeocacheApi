@@ -43,10 +43,10 @@ namespace GeocacheAPI.Data
 
         }
 
-        public async Task<Geocache> GetGeocacheAsync(string moniker, bool includeItems = true)
+        public async Task<Geocache> GetGeocacheAsync(int id, bool includeItems = true)
         {
 
-            _logger.LogInformation($"Getting Geocache {moniker}");
+            _logger.LogInformation($"Getting Geocache {id}");
             IQueryable<Geocache> query = _context.Geocaches
                 .Include(g => g.Location);
 
@@ -55,7 +55,7 @@ namespace GeocacheAPI.Data
                 query = query.Include(g => g.Items);
             }
 
-            query = query.Where(g => g.Moniker == moniker);
+            query = query.Where(g => g.ID == id);
 
             return await query.FirstOrDefaultAsync();
 

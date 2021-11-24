@@ -49,14 +49,14 @@ namespace GeocacheAPI.Controllers
         }
 
         /// <summary>
-        /// Get Geocache by Moniker
+        /// Get Geocache by Id
         /// </summary>
-        [HttpGet("{moniker}")]
-        public async Task<ActionResult<GeocacheViewModel>> Get(string moniker, bool includeItems = true)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GeocacheViewModel>> Get(int id, bool includeItems = true)
         {
             try
             {
-                var geocache = await _repository.GetGeocacheAsync(moniker, includeItems);
+                var geocache = await _repository.GetGeocacheAsync(id, includeItems);
 
                 if (geocache != null)
                 {
@@ -119,14 +119,14 @@ namespace GeocacheAPI.Controllers
         /// Update Geocache by Id
         /// </summary>
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<GeocacheViewModel>> Put(string moniker, [FromBody] GeocacheViewModel model, bool includeTalks = true)
+        public async Task<ActionResult<GeocacheViewModel>> Put(int id, [FromBody] GeocacheViewModel model, bool includeTalks = true)
         {
             try
             {
-                var oldGeocache = await _repository.GetGeocacheAsync(moniker, includeTalks);
+                var oldGeocache = await _repository.GetGeocacheAsync(id, includeTalks);
                 if(oldGeocache == null)
                 {
-                    return NotFound($"Could not find Geocache with moniker of {moniker}");
+                    return NotFound($"Could not find Geocache with moniker of {id}");
                 }
                 _mapper.Map(model, oldGeocache);
 
