@@ -77,11 +77,6 @@ namespace GeocacheAPI.Controllers
         {
             try
             {
-                var location = _linkGenerator.GetPathByAction("Get", "Item", new { id = model.Id });
-                if(string.IsNullOrWhiteSpace(location))
-                {
-                    return BadRequest("Could not use current Id");
-                }
                 
                 if(ModelState.IsValid)
                 {
@@ -94,9 +89,15 @@ namespace GeocacheAPI.Controllers
 
                     _repository.AddEntity(newItem);
 
+                    //var location = _linkGenerator.GetPathByAction("Get", "Item", new { id = newItem.Id });
+                    //if (string.IsNullOrWhiteSpace(location))
+                    //{
+                    //    return BadRequest("Could not use current Id");
+                    //}
+
                     if (await _repository.SaveAllAsync())
                     {
-                        return Created(location, _mapper.Map<Item, ItemViewModel>(newItem));
+                        return Created($"/api/items/{newItem.Id}", _mapper.Map<Item, ItemViewModel>(newItem));
                     }
                 }
                 else

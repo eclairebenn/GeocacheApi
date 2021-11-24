@@ -20,6 +20,7 @@ namespace GeocacheAPI.Data
                     new Geocache()
                     {
                         Name =  "Gas Works",
+                        Moniker = "GSP23",
                         Location =  new Location() 
                         {
                             Latitude = -234, 
@@ -42,6 +43,7 @@ namespace GeocacheAPI.Data
                     new Geocache()
                     {
                         Name = "Space Needle",
+                        Moniker = "SPNL54",
                         Location = new Location()
                         {
                             Latitude = -234,
@@ -64,6 +66,7 @@ namespace GeocacheAPI.Data
                     new Geocache()
                     {
                         Name = "Mt. Baker",
+                        Moniker = "MTBR78",
                         Location = new Location()
                         {
                             Latitude = -234,
@@ -73,6 +76,7 @@ namespace GeocacheAPI.Data
                     new Geocache()
                     {
                         Name = "Mercer Island",
+                        Moniker = "MCIS09",
                         Location = new Location()
                         {
                             Latitude = -234,

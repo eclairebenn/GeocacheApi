@@ -74,8 +74,12 @@ namespace GeocacheAPI.Data
         public async Task<Item> GetItemByIdAsync(int id)
         {
             _logger.LogInformation($"Getting Item by Id");
-            var query = _context.Items.Where(i => i.Id == id);
-            return await _context.Items.FirstOrDefaultAsync();
+
+            IQueryable<Item> query = _context.Items;
+
+            query = query.Where(i => i.Id == id);
+
+            return await query.FirstOrDefaultAsync();
         }
     }
 }

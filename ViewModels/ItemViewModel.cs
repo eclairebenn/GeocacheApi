@@ -8,7 +8,7 @@ namespace GeocacheAPI.ViewModels
 
         [Required]
         [MaxLength(50)]
-        [RegularExpression("/^[A-Za-z0-9 ]*$/")]
+        [RegularExpression("^[A-Za-z0-9 ]*$")]
         public string? Name { get; set; }
 
         public int GeocacheId { get; set; }

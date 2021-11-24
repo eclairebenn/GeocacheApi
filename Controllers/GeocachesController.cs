@@ -84,12 +84,6 @@ namespace GeocacheAPI.Controllers
         {
             try
             {
-                var location = _linkGenerator.GetPathByAction("Get", "Geocaches", new {moniker = model.Moniker });
-
-                if(string.IsNullOrWhiteSpace(location))
-                {
-                    return BadRequest("Could not use current Moniker");
-                }
                 if (ModelState.IsValid)
                 {
                     var newGeocache = _mapper.Map<Geocache>(model);
@@ -97,7 +91,7 @@ namespace GeocacheAPI.Controllers
                     _repository.AddEntity(newGeocache);
                     if (await _repository.SaveAllAsync())
                     {
-                        return Created(location, _mapper.Map<Geocache, GeocacheViewModel>(newGeocache));
+                        return Created($"/api/geocaches/{newGeocache.Moniker}", _mapper.Map<Geocache, GeocacheViewModel>(newGeocache));
                     }
                 }
                 else
