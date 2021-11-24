@@ -14,20 +14,19 @@ namespace GeocacheAPI.Controllers
         private readonly IGeocacheRepository _repository;
         private readonly ILogger<GeocachesController> _logger;
         private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
 
-        public GeocachesController(IGeocacheRepository repository, ILogger<GeocachesController> logger, IMapper mapper, LinkGenerator linkGenerator)
+        public GeocachesController(IGeocacheRepository repository, ILogger<GeocachesController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
-            _linkGenerator = linkGenerator;
         }
 
         /// <summary>
         /// Get all Geocaches
-        /// GET: api/Geocaches
         /// </summary>
+
+        //GET: api/Geocaches
         [HttpGet]
         public async Task<ActionResult<GeocacheViewModel[]>> Get(bool includeItems = true)
         {
@@ -51,8 +50,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Geocache by Id
-        /// GET: api/Geocaches/{geocachesid}
         /// </summary>
+
+        //GET: api/Geocaches/{geocachesid}
         [HttpGet("{id}")]
         public async Task<ActionResult<GeocacheViewModel>> Get(int id, bool includeItems = true)
         {
@@ -80,8 +80,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Create New Geocache
-        /// POST: api/Geocaches
         /// </summary>
+
+        //POST: api/Geocaches
         [HttpPost]
         public async Task<ActionResult<GeocacheViewModel>> Post([FromBody] GeocacheViewModel model)
         {
@@ -114,8 +115,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Update Geocache by Id
-        /// PUT: api/Geocaches/{geocachesid}
         /// </summary>
+
+        //PUT: api/Geocaches/{geocachesid}
         [HttpPut("{id:int}")]
         public async Task<ActionResult<GeocacheViewModel>> Put(int id, [FromBody] GeocacheViewModel model, bool includeTalks = true)
         {

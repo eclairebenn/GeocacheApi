@@ -20,8 +20,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get all Items of Geocache
-        /// GET: api/geocaches/{geocacheid}/items
         /// </summary>
+        
+        //GET: api/geocaches/{geocacheid}/items
         [HttpGet]
         public async Task<ActionResult<ItemViewModel[]>> Get(int geocacheid, bool includeItems = true)
         {
@@ -36,8 +37,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Item by Id from Geocache
-        /// GET: api/geocaches/{geocacheid}/items/{itemid}
         /// </summary>
+        
+        //GET: api/geocaches/{geocacheid}/items/{itemid}
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemViewModel>> Get(int geocacheid, int id)
         {
@@ -64,9 +66,9 @@ namespace GeocacheAPI.Controllers
 
         ///<summary>
         ///Remove Existing Item from Geocache List
-        ///PUT: api/geocaches/{geocacheid}/items/remove/{itemid}
         /// </summary>
         
+        //PUT: api/geocaches/{geocacheid}/items/remove{itemid}
         [HttpPut("remove/{id:int}")]
         public async Task<ActionResult<GeocacheViewModel>> PutRemove(int geocacheid, int id)
         {
@@ -107,8 +109,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Move Existing Item to Geocache List If Item is Active && If Geocache Items are not full
-        /// PUT: api/geocaches/{geocacheid}/items/add/{itemid}
         /// </summary>
+
+        //PUT: api/geocaches/{geocacheid}/items/add/{itemid}
         [HttpPut("add/{id:int}")]
         public async Task<ActionResult<GeocacheViewModel>> PutAdd(int geocacheid, int id, bool includeTalks = true)
         {

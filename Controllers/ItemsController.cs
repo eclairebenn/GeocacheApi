@@ -11,20 +11,19 @@ namespace GeocacheAPI.Controllers
         private readonly IGeocacheRepository _repository;
         private readonly ILogger<ItemsController> _logger;
         private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
 
-        public ItemsController(IGeocacheRepository repository, ILogger<ItemsController> logger, IMapper mapper, LinkGenerator linkGenerator)
+        public ItemsController(IGeocacheRepository repository, ILogger<ItemsController> logger, IMapper mapper)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
-            _linkGenerator = linkGenerator;
         }
 
         /// <summary>
         /// Get All Items
-        /// GET: api/items
         /// </summary>
+        
+        // GET: api/items
         [HttpGet]
         public async Task<ActionResult<ItemViewModel[]>> Get()
         {
@@ -46,8 +45,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Item by Id
-        /// GET: api/items/{itemid}
         /// </summary>
+        
+        // GET: api/items/{itemid}
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ItemViewModel>> Get(int id)
         {
@@ -73,8 +73,9 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Create New Item
-        /// POST: api/items
         /// </summary>
+
+        //POST: api/items
         [HttpPost]
         public async Task<ActionResult<ItemViewModel>> Post([FromBody]ItemViewModel model)
         {
