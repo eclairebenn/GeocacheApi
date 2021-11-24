@@ -14,29 +14,31 @@ namespace GeocacheAPI.Controllers
         private readonly IGeocacheRepository _repository;
         private readonly ILogger<GeocachesController> _logger;
         private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
 
-        public GeocachesController(IGeocacheRepository repository, ILogger<GeocachesController> logger, IMapper mapper)
+        public GeocachesController(IGeocacheRepository repository, ILogger<GeocachesController> logger, IMapper mapper, LinkGenerator linkGenerator)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _linkGenerator = linkGenerator;
         }
 
         /// <summary>
         /// Get all Geocaches
         /// </summary>
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<GeocacheViewModel[]>> Get(bool includeItems = true)
         {
             try
             {
-                var result = _repository.GetAllGeocaches();
+                var result = await _repository.GetAllGeocachesAsync(includeItems);
                 if(result != null)
                 {
-                    return Ok(_mapper.Map<IEnumerable<Geocache>, IEnumerable<GeocacheViewModel>>(result));
+                    return Ok(_mapper.Map<GeocacheViewModel[]>(result));
                 }
 
-                return BadRequest("No Result value");
+                return NotFound("No geocaches returned");
             }
             catch (Exception ex)
             {
@@ -47,18 +49,18 @@ namespace GeocacheAPI.Controllers
         }
 
         /// <summary>
-        /// Get Geocache by Id
+        /// Get Geocache by Moniker
         /// </summary>
-        [HttpGet("{id:int}")]
-        public ActionResult Get(int id)
+        [HttpGet("{moniker}")]
+        public async Task<ActionResult<GeocacheViewModel>> Get(string moniker, bool includeItems = true)
         {
             try
             {
-                var geocache = _repository.GetGeocacheById(id);
+                var geocache = await _repository.GetGeocacheAsync(moniker, includeItems);
 
                 if (geocache != null)
                 {
-                    return Ok(_mapper.Map<GeocacheViewModel>(geocache));
+                    return _mapper.Map<GeocacheViewModel>(geocache);
                 }
                 else
                 {
@@ -78,18 +80,24 @@ namespace GeocacheAPI.Controllers
         /// Create New Geocache
         /// </summary>
         [HttpPost]
-        public IActionResult Post([FromBody] GeocacheViewModel model)
+        public async Task<ActionResult<GeocacheViewModel>> Post([FromBody] GeocacheViewModel model)
         {
             try
             {
+                var location = _linkGenerator.GetPathByAction("Get", "Geocaches", new {moniker = model.Moniker });
+
+                if(string.IsNullOrWhiteSpace(location))
+                {
+                    return BadRequest("Could not use current Moniker");
+                }
                 if (ModelState.IsValid)
                 {
-                    var newGeocache = _mapper.Map<GeocacheViewModel, Geocache>(model);
+                    var newGeocache = _mapper.Map<Geocache>(model);
 
                     _repository.AddEntity(newGeocache);
-                    if (_repository.SaveAll())
+                    if (await _repository.SaveAllAsync())
                     {
-                        return Created($"/api/items/{newGeocache.ID}", _mapper.Map<Geocache, GeocacheViewModel>(newGeocache));
+                        return Created(location, _mapper.Map<Geocache, GeocacheViewModel>(newGeocache));
                     }
                 }
                 else
@@ -102,9 +110,8 @@ namespace GeocacheAPI.Controllers
                 _logger.LogError($"Failed to save a new Geocache: {ex}");
                 return BadRequest($"Failed to save a new Geocache: {ex}");
             }
-            return BadRequest("Fail");
 
-
+            return BadRequest();
 
         }
 
@@ -112,20 +119,20 @@ namespace GeocacheAPI.Controllers
         /// Update Geocache by Id
         /// </summary>
         [HttpPut("{id:int}")]
-        public async Task<ActionResult<GeocacheViewModel>> Put(int id, [FromBody] GeocacheViewModel model)
+        public async Task<ActionResult<GeocacheViewModel>> Put(string moniker, [FromBody] GeocacheViewModel model, bool includeTalks = true)
         {
             try
             {
-                var oldGeocache = _repository.GetGeocacheById(id);
+                var oldGeocache = await _repository.GetGeocacheAsync(moniker, includeTalks);
                 if(oldGeocache == null)
                 {
-                    return NotFound($"Could not find Geocache with ID of {id}");
+                    return NotFound($"Could not find Geocache with moniker of {moniker}");
                 }
                 _mapper.Map(model, oldGeocache);
 
-                if (_repository.SaveAll())
+                if (await _repository.SaveAllAsync())
                 {
-                    return _mapper.Map<Geocache, GeocacheViewModel>(oldGeocache);
+                    return _mapper.Map<GeocacheViewModel>(oldGeocache);
                 }
 
             }
