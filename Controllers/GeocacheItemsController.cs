@@ -20,6 +20,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get all Items of Geocache
+        /// GET: api/geocaches/{geocacheid}/items
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<ItemViewModel[]>> Get(int geocacheid, bool includeItems = true)
@@ -35,6 +36,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Item by Id from Geocache
+        /// GET: api/geocaches/{geocacheid}/items/{itemid}
         /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemViewModel>> Get(int geocacheid, int id)
@@ -60,56 +62,97 @@ namespace GeocacheAPI.Controllers
             }
         }
 
+        ///<summary>
+        ///Remove Existing Item from Geocache List
+        ///PUT: api/geocaches/{geocacheid}/items/remove/{itemid}
+        /// </summary>
+        
+        [HttpPut("remove/{id:int}")]
+        public async Task<ActionResult<GeocacheViewModel>> PutRemove(int geocacheid, int id)
+        {
+            try
+            {
+                var oldGeocache = await _repository.GetGeocacheAsync(geocacheid, true);
+
+                var items = oldGeocache.Items;
+                if (oldGeocache.Items != null)
+                {
+                    if (items != null)
+                    {
+                        var item = await _repository.GetItemByIdAsync(id);
+                        if (item != null)
+                        {
+                            _mapper.Map<ItemViewModel>(item);
+                            _mapper.Map<GeocacheViewModel>(oldGeocache);
+
+                            oldGeocache.Items.Remove(item);
+                            item.Geocache = null;
+                            if (await _repository.SaveAllAsync())
+                            {
+                                return _mapper.Map<GeocacheViewModel>(oldGeocache);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to update geocache by ID: {ex}");
+                return BadRequest($"Failed to update geocache by ID: {ex}");
+
+            }
+            return BadRequest();
+        }
+
 
         /// <summary>
-        /// Add New Item To Geocache By Id
+        /// Move Existing Item to Geocache List If Item is Active && If Geocache Items are not full
+        /// PUT: api/geocaches/{geocacheid}/items/add/{itemid}
         /// </summary>
-        //[HttpPost]
+        [HttpPut("add/{id:int}")]
+        public async Task<ActionResult<GeocacheViewModel>> PutAdd(int geocacheid, int id, bool includeTalks = true)
+        {
+            try
+            {         
+                var oldGeocache = await _repository.GetGeocacheAsync(geocacheid, includeTalks);
 
-        //public IActionResult Post(int geocacheid, [FromBody]ItemViewModel model)
-        //{
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            var geocache = _repository.GetGeocacheById(geocacheid);
-        //            if (geocache != null)
-        //            {
-        //                //Check length of current geocache items
-        //                //if <3 - create item and update geocache obj
-        //                var newItem = _mapper.Map<ItemViewModel, Item>(model);
+                var items = oldGeocache.Items;
+                if (oldGeocache.Items != null)
+                {
+                    if (items != null)
+                    {
+                        var item = await _repository.GetItemByIdAsync(id);
+                        if (item != null)
+                        {
+                            if (item.Deactivated != DateTime.MinValue)
+                            {
+                                return BadRequest("Item is deactivated and cannot be added to this Geocache");
+                            }
+                            if (oldGeocache.Items.Count == 3)
+                            {
+                                return BadRequest("Geocache contains maxiumum number of items");
+                            }
+                            _mapper.Map<ItemViewModel>(item);
+                            _mapper.Map<GeocacheViewModel>(oldGeocache);
 
-        //                if (newItem.Activated == DateTime.MinValue)
-        //                {
-        //                    newItem.Activated = DateTime.Now;
-        //                }
+                            oldGeocache.Items.Add(item);
+                            item.Geocache = oldGeocache;
+                                if (await _repository.SaveAllAsync())
+                                {
+                                    return _mapper.Map<GeocacheViewModel>(oldGeocache);
+                                }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to update geocache by ID: {ex}");
+                return BadRequest($"Failed to update geocache by ID: {ex}");
 
-        //                _repository.AddEntity(newItem);
-        //                if (_repository.SaveAll())
-        //                {
-        //                    return Created($"/api/items/{newItem.Id}", _mapper.Map<Item, ItemViewModel>(newItem));
-        //                }
-        //            }
-                    
-        //        }
-        //        else
-        //        {
-        //            return BadRequest(ModelState);
-        //        }
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError($"Failed to save a new Item: {ex}");
-        //        return BadRequest($"Failed to save a new Item: {ex}");
-        //    }
-        //    return BadRequest("Failed");
-
-        //}
-
-        //Remove Existing Item from Geocache List
-        //Add Existing Item to Geocache List If Active
-
+            }
+            return BadRequest();
+        }
 
     }
 }

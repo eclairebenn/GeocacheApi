@@ -26,6 +26,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get all Geocaches
+        /// GET: api/Geocaches
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<GeocacheViewModel[]>> Get(bool includeItems = true)
@@ -50,6 +51,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Geocache by Id
+        /// GET: api/Geocaches/{geocachesid}
         /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<GeocacheViewModel>> Get(int id, bool includeItems = true)
@@ -78,6 +80,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Create New Geocache
+        /// POST: api/Geocaches
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<GeocacheViewModel>> Post([FromBody] GeocacheViewModel model)
@@ -111,6 +114,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Update Geocache by Id
+        /// PUT: api/Geocaches/{geocachesid}
         /// </summary>
         [HttpPut("{id:int}")]
         public async Task<ActionResult<GeocacheViewModel>> Put(int id, [FromBody] GeocacheViewModel model, bool includeTalks = true)
@@ -120,7 +124,7 @@ namespace GeocacheAPI.Controllers
                 var oldGeocache = await _repository.GetGeocacheAsync(id, includeTalks);
                 if(oldGeocache == null)
                 {
-                    return NotFound($"Could not find Geocache with moniker of {id}");
+                    return NotFound($"Could not find Geocache with id of {id}");
                 }
                 _mapper.Map(model, oldGeocache);
 

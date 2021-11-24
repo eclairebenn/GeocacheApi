@@ -23,6 +23,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get All Items
+        /// GET: api/items
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<ItemViewModel[]>> Get()
@@ -45,6 +46,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Get Item by Id
+        /// GET: api/items/{itemid}
         /// </summary>
         [HttpGet("{id:int}")]
         public async Task<ActionResult<ItemViewModel>> Get(int id)
@@ -71,6 +73,7 @@ namespace GeocacheAPI.Controllers
 
         /// <summary>
         /// Create New Item
+        /// POST: api/items
         /// </summary>
         [HttpPost]
         public async Task<ActionResult<ItemViewModel>> Post([FromBody]ItemViewModel model)
@@ -87,13 +90,9 @@ namespace GeocacheAPI.Controllers
                         newItem.Activated = DateTime.Now;
                     }
 
-                    _repository.AddEntity(newItem);
+                    newItem.Geocache = null;
 
-                    //var location = _linkGenerator.GetPathByAction("Get", "Item", new { id = newItem.Id });
-                    //if (string.IsNullOrWhiteSpace(location))
-                    //{
-                    //    return BadRequest("Could not use current Id");
-                    //}
+                    _repository.AddEntity(newItem);
 
                     if (await _repository.SaveAllAsync())
                     {
