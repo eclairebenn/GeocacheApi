@@ -11,23 +11,30 @@ namespace GeocacheAPI.Controllers
         private readonly IGeocacheRepository _repository;
         private readonly ILogger<ItemsController> _logger;
         private readonly IMapper _mapper;
+        private readonly LinkGenerator _linkGenerator;
 
-        public ItemsController(IGeocacheRepository repository, ILogger<ItemsController> logger, IMapper mapper)
+        public ItemsController(IGeocacheRepository repository, ILogger<ItemsController> logger, IMapper mapper, LinkGenerator linkGenerator)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _linkGenerator = linkGenerator;
         }
+
         /// <summary>
         /// Get All Items
         /// </summary>
         [HttpGet]
-        public IActionResult Get()
+        public async Task<ActionResult<ItemViewModel[]>> Get()
         {
             try
             {
-               var result = _repository.GetAllItems();
-               return Ok(_mapper.Map<IEnumerable<ItemViewModel>>(result));
+               var result = await _repository.GetAllItemsAsync();
+               if(result != null)
+               {
+                    return Ok(_mapper.Map<ItemViewModel[]>(result));
+               }
+                return NotFound("No items returned");
             }
             catch (Exception ex)
             {
@@ -40,22 +47,19 @@ namespace GeocacheAPI.Controllers
         /// Get Item by Id
         /// </summary>
         [HttpGet("{id:int}")]
-        public IActionResult Get(int id)
+        public async Task<ActionResult<ItemViewModel>> Get(int id)
         {
             try
             {
-                var item = _repository.GetItemById(id);
+                var item = await _repository.GetItemByIdAsync(id);
                 if(item != null)
                 {
-                    return Ok(_mapper.Map<Item, ItemViewModel>(item));
+                    return _mapper.Map<ItemViewModel>(item);
                 }
                 else
                 {
                     return NotFound();
-
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -69,13 +73,19 @@ namespace GeocacheAPI.Controllers
         /// Create New Item
         /// </summary>
         [HttpPost]
-        public IActionResult Post([FromBody]ItemViewModel model)
+        public async Task<ActionResult<ItemViewModel>> Post([FromBody]ItemViewModel model)
         {
             try
             {
+                var location = _linkGenerator.GetPathByAction("Get", "Item", new { id = model.Id });
+                if(string.IsNullOrWhiteSpace(location))
+                {
+                    return BadRequest("Could not use current Id");
+                }
+                
                 if(ModelState.IsValid)
                 {
-                    var newItem = _mapper.Map<ItemViewModel, Item>(model);
+                    var newItem = _mapper.Map<Item>(model);
 
                     if (newItem.Activated == DateTime.MinValue)
                     {
@@ -83,9 +93,10 @@ namespace GeocacheAPI.Controllers
                     }
 
                     _repository.AddEntity(newItem);
-                    if (_repository.SaveAll())
+
+                    if (await _repository.SaveAllAsync())
                     {
-                        return Created($"/api/items/{newItem.Id}", _mapper.Map<Item, ItemViewModel>(newItem));
+                        return Created(location, _mapper.Map<Item, ItemViewModel>(newItem));
                     }
                 }
                 else
